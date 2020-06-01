@@ -3,8 +3,11 @@ name = "syntax"
 version = "0.1.0"
 authors = ["Aramis Razzaghipour <aramisnoah@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT OR Apache-2.0"
+description = "Types and traits for implementing syntax highlighting."
+documentation = "https://docs.rs/syntax"
+homepage = "https://github.com/arzg/syntax"
+repository = "https://github.com/arzg/syntax"
 
 [dependencies]
 ansi_term = "0.12"
