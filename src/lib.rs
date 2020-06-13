@@ -2,6 +2,8 @@
 
 #![warn(missing_debug_implementations, missing_docs, rust_2018_idioms)]
 
+pub mod themes;
+
 /// This trait is to be implemented by any type that syntax highlights source code for a particular
 /// language. This is done by taking in a string slice and outputting a vector of
 /// [`HighlightedSpan`](struct.HighlightedSpan.html)s.
