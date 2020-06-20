@@ -237,8 +237,7 @@ impl From<ResolvedStyle> for ansi_term::Style {
             // These fields aren’t useful in the context of syntax highlighting, with the exception
             // of ‘is_dimmed’. The reason why ‘is_dimmed’ cannot be used by theme authors is that
             // its appearance depends on what colour the terminal picks, which can vary. This also
-            // ensure consistency, thereby minimising support requests on themes (‘Why does it look
-            // different to the screenshot?’).
+            // ensures consistency.
             is_dimmed: false,
             is_blink: false,
             is_reverse: false,
