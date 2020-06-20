@@ -14,7 +14,7 @@ pub trait Highlight {
 }
 
 /// An individual fragment of possibly highlighted text.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct HighlightedSpan<'text> {
     /// the text being highlighted
     pub text: &'text str,
@@ -23,7 +23,7 @@ pub struct HighlightedSpan<'text> {
 }
 
 /// The set of possible syntactical forms text can be assigned.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, strum_macros::EnumIter)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, strum_macros::EnumIter)]
 pub enum HighlightGroup {
     /// a keyword that controls the flow of execution within code, e.g. `if` or `for`
     CtrlFlowKeyword,
@@ -115,7 +115,7 @@ pub enum HighlightGroup {
 }
 
 /// An individual fragment of styled text.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct StyledSpan<'text> {
     /// the text being styled
     pub text: &'text str,
@@ -138,7 +138,7 @@ impl<'text> StyledSpan<'text> {
 }
 
 /// An RGB colour.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct Rgb {
     /// red
     pub r: u8,
@@ -171,7 +171,7 @@ macro_rules! rgb {
 /// When a field is given a `None` value, then that field’s value defaults to that of the theme’s
 /// default style. It was decided that only colours are to be optional, because it is exceedingly
 /// rare that an entire theme wishes to be bold, italic or underlined.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Default)]
 pub struct Style {
     /// its foreground colour
     pub fg_color: Option<Rgb>,
@@ -211,7 +211,7 @@ impl Style {
 }
 
 /// Identical to a [`Style`](struct.Style.html), except that all its fields are mandatory.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct ResolvedStyle {
     /// its foreground colour
     pub fg_color: Rgb,
