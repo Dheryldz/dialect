@@ -8,18 +8,17 @@ pub mod themes;
 /// language. This is done by taking in a string slice and outputting a vector of
 /// [`HighlightedSpan`](struct.HighlightedSpan.html)s.
 pub trait Highlight {
-    /// Ensure that all input text is also contained in the `text` fields of the outputted
-    /// `HighlightedSpan`s – in other words, this function must be lossless.
-    fn highlight<'input>(&self, input: &'input str) -> Vec<HighlightedSpan<'input>>;
+    #[allow(missing_docs)]
+    fn highlight(&self, input: &str) -> Vec<HighlightedSpan>;
 }
 
-/// An individual fragment of possibly highlighted text.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct HighlightedSpan<'text> {
-    /// the text being highlighted
-    pub text: &'text str,
-    /// the highlight group it may have been assigned
-    pub group: Option<HighlightGroup>,
+/// An individual fragment of highlighted text.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct HighlightedSpan {
+    /// the region of text being highlighted
+    pub range: std::ops::Range<usize>,
+    /// the highlight group it has been assigned
+    pub group: HighlightGroup,
 }
 
 /// The set of possible syntactical forms text can be assigned.
@@ -114,27 +113,13 @@ pub enum HighlightGroup {
     Error,
 }
 
-/// An individual fragment of styled text.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct StyledSpan<'text> {
-    /// the text being styled
-    pub text: &'text str,
+/// An individual styled character.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct StyledChar {
+    /// the character
+    pub c: char,
     /// the style it has been given
     pub style: ResolvedStyle,
-}
-
-impl<'text> StyledSpan<'text> {
-    /// Splits the `StyledSpan` into a vector of `StyledSpan`s along the lines contained in the
-    /// original `StyledSpan`. The outputs inherit the `style` of the original.
-    pub fn split_lines(self) -> Vec<Self> {
-        self.text
-            .lines()
-            .map(|text| Self {
-                text,
-                style: self.style,
-            })
-            .collect()
-    }
 }
 
 /// An RGB colour.
@@ -269,8 +254,8 @@ pub trait Theme {
 }
 
 /// A convenience function that renders a given input text using a given highlighter and theme,
-/// returning a vector of `StyledSpan`s.
-pub fn render<'input, H, T>(input: &'input str, highlighter: H, theme: T) -> Vec<StyledSpan<'input>>
+/// returning a vector of `StyledChar`s.
+pub fn render<H, T>(input: &str, highlighter: H, theme: T) -> Vec<StyledChar>
 where
     H: Highlight,
     T: Theme,
@@ -282,23 +267,32 @@ where
         .map(|group| (group, theme.style(group)))
         .collect();
 
-    highlighter
-        .highlight(input)
-        .into_iter()
-        .map(|span| {
-            // If the span has a group assigned to it, then we use the resolved version of its
-            // style. If the span does not have a highlight group, however, then we just use the
-            // theme’s default style.
-            let resolved_style = if let Some(group) = span.group {
-                styles[&group].resolve(theme.default_style())
-            } else {
-                theme.default_style()
-            };
+    let spans = highlighter.highlight(input);
 
-            StyledSpan {
-                text: span.text,
-                style: resolved_style,
+    let num_chars = input.chars().count();
+    let mut output = Vec::with_capacity(num_chars);
+
+    'chars: for (idx, c) in input.char_indices() {
+        for span in spans.iter() {
+            // We’ve found the span that contains the current character, so we add the character to
+            // the output and go to the next character.
+            if span.range.contains(&idx) {
+                output.push(StyledChar {
+                    c,
+                    style: styles[&span.group].resolve(theme.default_style()),
+                });
+                continue 'chars;
             }
-        })
-        .collect()
+        }
+
+        // At this point the character has not been found in any of the spans outputted by the
+        // highlighter, meaning that it has not been styled. This means we should give it the
+        // theme’s default style.
+        output.push(StyledChar {
+            c,
+            style: theme.default_style(),
+        });
+    }
+
+    output
 }
