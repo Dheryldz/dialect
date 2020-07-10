@@ -8,12 +8,10 @@ mod nord;
 mod seoul;
 mod solarized;
 
-pub use {
-    dark_plus::DarkPlus,
-    dracula::Dracula,
-    gruvbox::Gruvbox,
-    monokai::Monokai,
-    nord::Nord,
-    seoul::Seoul,
-    solarized::{SolarizedDark, SolarizedLight},
-};
+pub use dark_plus::DarkPlus;
+pub use dracula::Dracula;
+pub use gruvbox::Gruvbox;
+pub use monokai::Monokai;
+pub use nord::Nord;
+pub use seoul::Seoul;
+pub use solarized::{SolarizedDark, SolarizedLight};

@@ -260,10 +260,9 @@ where
     H: Highlight,
     T: Theme,
 {
-    use {
-        std::collections::HashMap, strum::IntoEnumIterator,
-        unicode_segmentation::UnicodeSegmentation,
-    };
+    use std::collections::HashMap;
+    use strum::IntoEnumIterator;
+    use unicode_segmentation::UnicodeSegmentation;
 
     // The key is the highlight group, the value is the style the theme gives to this group.
     let styles: HashMap<_, _> = HighlightGroup::iter()
