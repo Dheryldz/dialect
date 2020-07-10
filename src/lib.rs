@@ -113,11 +113,11 @@ pub enum HighlightGroup {
     Error,
 }
 
-/// An individual styled character.
+/// An individual styled grapheme.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct StyledChar {
-    /// the character
-    pub c: char,
+pub struct StyledGrapheme<'g> {
+    /// the grapheme
+    pub grapheme: &'g str,
     /// the style it has been given
     pub style: ResolvedStyle,
 }
@@ -254,13 +254,16 @@ pub trait Theme {
 }
 
 /// A convenience function that renders a given input text using a given highlighter and theme,
-/// returning a vector of `StyledChar`s.
-pub fn render<H, T>(input: &str, highlighter: H, theme: T) -> Vec<StyledChar>
+/// returning a vector of `StyledGrapheme`s.
+pub fn render<H, T>(input: &str, highlighter: H, theme: T) -> Vec<StyledGrapheme<'_>>
 where
     H: Highlight,
     T: Theme,
 {
-    use {std::collections::HashMap, strum::IntoEnumIterator};
+    use {
+        std::collections::HashMap, strum::IntoEnumIterator,
+        unicode_segmentation::UnicodeSegmentation,
+    };
 
     // The key is the highlight group, the value is the style the theme gives to this group.
     let styles: HashMap<_, _> = HighlightGroup::iter()
@@ -272,24 +275,24 @@ where
     let num_chars = input.chars().count();
     let mut output = Vec::with_capacity(num_chars);
 
-    'chars: for (idx, c) in input.char_indices() {
+    'graphemes: for (idx, grapheme) in input.grapheme_indices(true) {
         for span in spans.iter() {
-            // We’ve found the span that contains the current character, so we add the character to
-            // the output and go to the next character.
+            // We’ve found the span that contains the current grapheme, so we add the grapheme to
+            // the output and go to the next grapheme.
             if span.range.contains(&idx) {
-                output.push(StyledChar {
-                    c,
+                output.push(StyledGrapheme {
+                    grapheme,
                     style: styles[&span.group].resolve(theme.default_style()),
                 });
-                continue 'chars;
+                continue 'graphemes;
             }
         }
 
-        // At this point the character has not been found in any of the spans outputted by the
+        // At this point the grapheme has not been found in any of the spans outputted by the
         // highlighter, meaning that it has not been styled. This means we should give it the
         // theme’s default style.
-        output.push(StyledChar {
-            c,
+        output.push(StyledGrapheme {
+            grapheme,
             style: theme.default_style(),
         });
     }
