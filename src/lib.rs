@@ -238,13 +238,13 @@ pub trait Theme {
     /// consider the following example:
     ///
     /// - `default_style` returns a [`Style`](struct.Style.html) which omits a foreground colour -
-    /// at some point a [highlighter](trait.Highlight.html) returns a
-    /// [`HighlightedSpan`](struct.HighlightedSpan.html) without a highlight group
+    ///   at some point a [highlighter](trait.Highlight.html) returns a
+    ///   [`HighlightedSpan`](struct.HighlightedSpan.html) without a highlight group
     /// - when [`render`](fn.render.html) is called, what is the foreground colour of this
     ///   unhighlighted HighlightedSpan?
     ///
-    /// To prevent situations like this, `default_style` acts as a fallback for all cases by
-    /// forcing the implementor to define all of the style’s fields.
+    /// To prevent situations like this, `default_style` acts as a fallback for all cases by forcing
+    /// the implementor to define all of the style’s fields.
     fn default_style(&self) -> ResolvedStyle;
 
     /// Provides a mapping from `HighlightGroup`s to `Style`s. As `HighlightGroup`s contain a
