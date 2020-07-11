@@ -115,9 +115,9 @@ pub enum HighlightGroup {
 
 /// An individual styled grapheme.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct StyledGrapheme<'g> {
+pub struct StyledGrapheme {
     /// the grapheme
-    pub grapheme: &'g str,
+    pub grapheme: smol_str::SmolStr,
     /// the style it has been given
     pub style: ResolvedStyle,
 }
@@ -255,7 +255,7 @@ pub trait Theme {
 
 /// A convenience function that renders a given input text using a given highlighter and theme,
 /// returning a vector of `StyledGrapheme`s.
-pub fn render<H, T>(input: &str, highlighter: H, theme: T) -> Vec<StyledGrapheme<'_>>
+pub fn render<H, T>(input: &str, highlighter: H, theme: T) -> Vec<StyledGrapheme>
 where
     H: Highlight,
     T: Theme,
@@ -275,6 +275,8 @@ where
     let mut output = Vec::with_capacity(num_chars);
 
     'graphemes: for (idx, grapheme) in input.grapheme_indices(true) {
+        let grapheme = smol_str::SmolStr::from(grapheme);
+
         for span in spans.iter() {
             // We’ve found the span that contains the current grapheme, so we add the grapheme to
             // the output and go to the next grapheme.
