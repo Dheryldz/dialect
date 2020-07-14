@@ -2,6 +2,8 @@
 
 #![warn(missing_debug_implementations, missing_docs, rust_2018_idioms)]
 
+use unicode_width::UnicodeWidthStr;
+
 pub mod themes;
 
 /// This trait is to be implemented by any type that syntax highlights source code for a particular
@@ -120,6 +122,16 @@ pub struct StyledGrapheme {
     pub grapheme: smol_str::SmolStr,
     /// the style it has been given
     pub style: ResolvedStyle,
+}
+
+impl UnicodeWidthStr for StyledGrapheme {
+    fn width(&self) -> usize {
+        self.grapheme.as_str().width()
+    }
+
+    fn width_cjk(&self) -> usize {
+        self.grapheme.as_str().width_cjk()
+    }
 }
 
 /// An RGB colour.
